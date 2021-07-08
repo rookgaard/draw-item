@@ -1,0 +1,10 @@
+*.suo
+*.sdf
+*.opensdf
+*.user
+*.filters
+*.sln
+*.aps
+.vs/
+[Dd]ebug/
+[Rr]elease/
