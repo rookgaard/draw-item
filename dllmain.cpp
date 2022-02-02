@@ -2,8 +2,11 @@
 #include <string>
 
 DWORD baseAddress;
+int clientVersion;
 typedef int __stdcall fps();
 fps* printFps;
+typedef void _DrawCreature(int surface, int x, int y, int size, int outfitId, int* outfitColors, int addons, int edgeRed, int edgeGreen, int edgeBlue, int clipX, int clipY, int clipWidth, int clipHeight);
+_DrawCreature* DrawCreature;
 FILE* pFile;
 HMODULE origLibrary;
 
@@ -83,6 +86,10 @@ void myDrawItem(
 	}
 }
 
+void myDrawCreature(int x, int y, int size, int outfitId, int* outfitColors, int addons, int clipX, int clipY) {
+	DrawCreature(1, x, y, size, outfitId, outfitColors, addons, 71, 71, 71, clipX, clipY, 138, 138);
+}
+
 void __fastcall HookedDrawItem(int surface, int x, int y, int size, int itemPointer, int edgeR, int edgeG, int edgeB, int clipX, int clipY, int clipW, int clipH, int arg12, int arg13, int arg14, int arg15, int arg16, int arg17) {
 	fprintf(
 		pFile,
@@ -94,7 +101,14 @@ void __fastcall HookedDrawItem(int surface, int x, int y, int size, int itemPoin
 }
 
 int myPrintFps() {
-	//myDrawItem(1, 32, 32, 32, ???, 0, 0, 0, 32, 32, 32, 32);
+	if (clientVersion == 860) {
+		int outfitSize = 64;
+		myDrawCreature(64, 94, outfitSize, 3, (int*)(baseAddress + 0x14), 0, 22, 52); // war wolf
+		myDrawCreature(64, 74, outfitSize, 128, (int*)(baseAddress + 0x14), 0, 22, 32); // male citizen
+	}
+	else {
+		//myDrawItem(1, 32, 32, 32, ???, 0, 0, 0, 32, 32, 32, 32);
+	}
 
 	return printFps();
 }
@@ -119,8 +133,18 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 
 	baseAddress = (DWORD)GetModuleHandle(NULL);
 	pFile = fopen("dll.log", "w");
-	HookCall(baseAddress + 0xA500F, (DWORD)&myPrintFps, (LPDWORD)&printFps);
-	HookAsmCall(baseAddress + 0x826B2, (DWORD)&HookedDrawItem);
+	DWORD entrypoint = *(DWORD*)(baseAddress + 0x148);
+
+	if (entrypoint == 0x1625EB) {
+		clientVersion = 860;
+		HookCall(baseAddress + 0x5A34A, (DWORD)&myPrintFps, (LPDWORD)&printFps);
+		DrawCreature = (_DrawCreature*)(baseAddress + 0xB5E90);
+	}
+	else {
+		clientVersion = 1098;
+		HookCall(baseAddress + 0xA500F, (DWORD)&myPrintFps, (LPDWORD)&printFps);
+		HookAsmCall(baseAddress + 0x826B2, (DWORD)&HookedDrawItem);
+	}
 
 	return true;
 }
