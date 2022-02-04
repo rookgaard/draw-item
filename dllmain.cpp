@@ -100,6 +100,15 @@ void __fastcall HookedDrawItem(int surface, int x, int y, int size, int itemPoin
 	myDrawItem(surface, x, y, size, itemPointer, edgeR, edgeG, edgeB, clipX, clipY, clipW, clipH);
 }
 
+void __cdecl HookedDump(int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12, int arg13, int arg14, int arg15, int arg16, int arg17, int arg18, int arg19, int arg20, int arg21, int arg22, int arg23, int arg24, int arg25, int arg26, int arg27, int arg28, int arg29) {
+	fprintf(
+		pFile,
+		"HookedDump - arg0: %d, arg1: %d, arg2: %d, arg3: %d, arg4: %d, arg5: %d, arg6: %d, arg7: %d, arg8: %d, arg9: %d, arg10: %d, arg11: %d, arg12: %d, arg13: %d, arg14: %d, arg15: %d, arg16: %d, arg17: %d, arg18: %d, arg19: %d, arg20: %d, arg21: %d, arg22: %d, arg23: %d, arg24: %d, arg25: %d, arg26: %d, arg27: %d, arg28: %d, arg29: %d\n\n",
+		arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22, arg23, arg24, arg25, arg26, arg27, arg28, arg29
+	);
+	fflush(pFile);
+}
+
 int myPrintFps() {
 	if (clientVersion == 860) {
 		int outfitSize = 64;
@@ -139,6 +148,15 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 		clientVersion = 860;
 		HookCall(baseAddress + 0x5A34A, (DWORD)&myPrintFps, (LPDWORD)&printFps);
 		DrawCreature = (_DrawCreature*)(baseAddress + 0xB5E90);
+
+		//HookAsmCall(baseAddress + 0xE6E7, (DWORD)&HookedDump); // original to 0x40DFF0
+		//HookAsmCall(baseAddress + 0x174C5, (DWORD)&HookedDump); // original to 0x40DFF0
+		//HookAsmCall(baseAddress + 0x18786, (DWORD)&HookedDump); // original to 0x40DFF0
+
+		//HookAsmCall(baseAddress + 0x477D6, (DWORD)&HookedDump); // original to 0x4B5E90
+		//HookAsmCall(baseAddress + 0x6ACDD, (DWORD)&HookedDump); // original to 0x4B5E90
+
+		//HookAsmCall(baseAddress + 0xF27CA, (DWORD)&HookedDump); // original to 0x4F0F30
 	}
 	else {
 		clientVersion = 1098;
